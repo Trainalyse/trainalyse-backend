@@ -1,0 +1,9 @@
+# Cloudflare Worker Build Artifacts & Caches
+python_modules/
+.venv-workers/
+.wrangler/
+
+# Standard Local Python Virtual Environments
+.venv/
+__pycache__/
+*.pyc
