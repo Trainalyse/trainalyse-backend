@@ -6,11 +6,11 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.136.3",
-    "pytest>=9.0.3",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.3",
     "pywrangler>=0.0.2",
     "workers-py>=1.11.0",
 ]

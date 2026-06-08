@@ -373,23 +373,21 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
-    { name = "pytest" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "pytest" },
     { name = "pywrangler" },
     { name = "workers-py" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.136.3" },
-    { name = "pytest", specifier = ">=9.0.3" },
-]
+requires-dist = [{ name = "fastapi", specifier = ">=0.136.3" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pytest", specifier = ">=9.0.3" },
     { name = "pywrangler", specifier = ">=0.0.2" },
     { name = "workers-py", specifier = ">=1.11.0" },
 ]
