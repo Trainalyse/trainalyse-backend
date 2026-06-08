@@ -1,4 +1,5 @@
 {
+  "account_id": "8d6faefbf332703f035fd0847c4853f5",
   "name": "trainalyse-backend",
   "main": "src/trainalyse-backend/main.py",
   "compatibility_date": "2026-06-07",
