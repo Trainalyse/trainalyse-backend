@@ -6,7 +6,4 @@
   "compatibility_flags": [
     "python_workers"
   ],
-  "vars": {
-    "DEV_API_TOKEN": "",
-  }
 }
