@@ -7,3 +7,6 @@ python_modules/
 .venv/
 __pycache__/
 *.pyc
+
+# Cloudflare Workers Local Dev Secrets
+.dev.vars

@@ -1,17 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from workers import WorkerEntrypoint  # cloudflare native libarary
 import asgi  # for building asyncronous api
+from auth import check_dev_token
 
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", dependencies=[Depends(check_dev_token)])
 async def main():
     return {"status": "cum"}
 
 
 class Default(WorkerEntrypoint):
-    # This specific naming structure maps directly to Cloudflare's W3C FetchEvent
     # fetch is trigger for http request
     async def fetch(self, request):
         return await asgi.fetch(app, request, self.env)
