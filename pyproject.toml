@@ -1,16 +1,18 @@
 [project]
 name = "trainalyse-backend"
-version = "0.1.1"
+version = "0.2.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "fastapi>=0.136.3",
-]
+dependencies = ["fastapi>=0.136.3"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.3",
-    "pywrangler>=0.0.2",
-    "workers-py>=1.11.0",
+  "pytest>=9.0.3",
+  "pywrangler>=0.0.2",
+  "sqlfluff>=4.2.2",
+  "workers-py>=1.11.0",
 ]
+
+[tool.sqlfluff.core]
+dialect = "sqlite"
