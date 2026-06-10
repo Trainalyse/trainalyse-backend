@@ -1,12 +1,14 @@
-from fastapi import FastAPI, Depends
 from workers import WorkerEntrypoint  # cloudflare native libarary
 import asgi  # for building asyncronous api
+from fastapi import FastAPI, Depends
 from auth import check_dev_token
 
-app = FastAPI()
+app = FastAPI(
+    dependencies=[Depends(check_dev_token)]
+)  # only allow access to the api when token is valid
 
 
-@app.get("/", dependencies=[Depends(check_dev_token)])
+@app.get("/")
 async def main():
     return {"status": "cum"}
 

@@ -1,7 +1,7 @@
 from fastapi import Request, HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-# 1. Instantiate the OpenAPI Security Scheme
+
 # Consider the security scheme like a machine
 # on execution fastapi passes the request object to it internally and automatically
 # it checks for existence of Authorization header in request object otherwise error (auto_error=True)
