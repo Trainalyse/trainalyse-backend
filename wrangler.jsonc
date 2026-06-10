@@ -6,4 +6,11 @@
   "compatibility_flags": [
     "python_workers"
   ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "trainalyse-db",
+      "database_id": "cfd4675e-7772-4132-83a0-675a10beeac7"
+    }
+  ]
 }
