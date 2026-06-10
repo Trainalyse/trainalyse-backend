@@ -79,6 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Injected natively by GitHub
 
+
   # JOB 3: Deploy to Cloudflare Workers
   deploy-to-cloudflare:
     runs-on: ubuntu-latest
@@ -98,8 +99,13 @@ jobs:
 
       - name: Set up Python
         run: uv python install
+        
+      - name: Apply Database Migrations
+        run: uvx --from workers-py pywrangler d1 migrations apply trainalyse-db --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
-      - name: Deploy via pywrangler
+      - name: Deploy to Cloudflare Workers 
         run: uvx --from workers-py pywrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
