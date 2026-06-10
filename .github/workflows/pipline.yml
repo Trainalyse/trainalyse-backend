@@ -28,11 +28,42 @@ jobs:
       - name: Run Testing Suite
         run: uv run pytest
 
-  # JOB 2: Automatically handle Version Tagging & Releases
+  # JOB 2: Deploy to Cloudflare Workers
+  deploy-to-cloudflare:
+    runs-on: ubuntu-latest
+
+    needs: run-tests # Only deploy if tests pass
+
+    # restricting the job to only merge on main branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+        
+      - name: Apply Database Migrations
+        run: uvx --from workers-py pywrangler d1 migrations apply trainalyse-db --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Deploy to Cloudflare Workers 
+        run: uvx --from workers-py pywrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  # JOB 3: Automatically handle Version Tagging & Releases
   tag-and-release:
     runs-on: ubuntu-latest
 
-    needs: run-tests
+    needs: deploy-to-cloudflare # only create release if deplyed succesfully
     
     # restricting the job to only merge on main branch
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -78,34 +109,3 @@ jobs:
             --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Injected natively by GitHub
-
-
-  # JOB 3: Deploy to Cloudflare Workers
-  deploy-to-cloudflare:
-    runs-on: ubuntu-latest
-
-    needs: tag-and-release # Runs sequentially after the release job finishes
-
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Set up Python
-        run: uv python install
-        
-      - name: Apply Database Migrations
-        run: uvx --from workers-py pywrangler d1 migrations apply trainalyse-db --remote
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-      - name: Deploy to Cloudflare Workers 
-        run: uvx --from workers-py pywrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
