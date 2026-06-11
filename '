@@ -1,0 +1,78 @@
+from fastapi import APIRouter, Request, HTTPException, status
+from pydantic import BaseModel
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+
+class UserCreate(BaseModel):
+    name: str
+
+
+class UserUpdate(BaseModel):
+    name: str
+
+
+# asgi converts the incoming request from a string to a pythong dict. where heach part of the http request is a key
+# the asgi scope also contains "env" key which contains the data object passed by cloudflare containing secrets, database, etc
+# fastapi converts the asgi dict to an object. It also holds the whole asgi dict as scope paramtere.
+# fastapi automatically injects the request object to any parameter with type hint Request
+def get_db(request: Request):
+    env = request.scope.get("env")
+    if not env:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, "Environment not available"
+        )
+    db = getattr(env, "DB", None)
+    if not db:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, "Database binding not available"
+        )
+    return db
+
+
+@router.get("/")
+async def list_users(request: Request):
+    db = get_db(request)
+    result = db.prepare("SELECT id, name FROM users ORDER BY id").all()
+    return result.results
+
+
+@router.get("/{user_id}")
+async def get_user(request: Request, user_id: int):
+    db = get_db(request)
+    user = db.prepare("SELECT id, name FROM users WHERE id = ?").bind(user_id).first()
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    return user
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_user(request: Request, body: UserCreate):
+    db = get_db(request)
+    result = db.prepare("INSERT INTO users (name) VALUES (?)").bind(body.name).run()
+    user = (
+        db.prepare("SELECT id, name FROM users WHERE id = ?")
+        .bind(result.meta["last_row_id"])
+        .first()
+    )
+    return user
+
+
+@router.put("/{user_id}")
+async def update_user(request: Request, user_id: int, body: UserUpdate):
+    db = get_db(request)
+    existing = db.prepare("SELECT id FROM users WHERE id = ?").bind(user_id).first()
+    if not existing:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    db.prepare("UPDATE users SET name = ? WHERE id = ?").bind(body.name, user_id).run()
+    user = db.prepare("SELECT id, name FROM users WHERE id = ?").bind(user_id).first()
+    return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(request: Request, user_id: int):
+    db = get_db(request)
+    existing = db.prepare("SELECT id FROM users WHERE id = ?").bind(user_id).first()
+    if not existing:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    db.prepare("DELETE FROM users WHERE id = ?").bind(user_id).run()

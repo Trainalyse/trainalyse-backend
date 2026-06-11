@@ -10,3 +10,6 @@ __pycache__/
 
 # Cloudflare Workers Local Dev Secrets
 .dev.vars
+
+# Personal notes and assets
+pywrangler_notes.txt
